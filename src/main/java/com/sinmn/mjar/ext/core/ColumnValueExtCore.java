@@ -1,0 +1,84 @@
+package com.sinmn.mjar.ext.core;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.stereotype.Component;
+
+import com.sinmn.core.utils.util.BeanUtil;
+import com.sinmn.core.utils.util.FastJsonUtils;
+import com.sinmn.core.utils.util.StringUtil;
+import com.sinmn.mjar.ext.annotation.ColumnExt;
+import com.sinmn.mjar.ext.annotation.ColumnExtColumn;
+import com.sinmn.mjar.ext.model.ExtColumnValue;
+import com.sinmn.mjar.ext.repository.ExtColumnValueRepository;
+
+@Component
+public class ColumnValueExtCore {
+
+	@Autowired
+	private ExtColumnValueRepository extColumnValueRepository;
+	
+	public <T> T getByShopId(Long shopId,Class<T> clazz){
+		
+		String code = "";
+		
+		ColumnExt columnExt = AnnotationUtils.findAnnotation(clazz, ColumnExt.class);
+		if(columnExt != null){
+			code = columnExt.code();
+		}
+		return getByShopId(code,shopId,clazz);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getByShopId(String code,Long shopId,Class<T> clazz){
+		
+		try {
+			ExtColumnValue extColumnValue = extColumnValueRepository
+				.where(ExtColumnValue.CODE,code)
+				.where(ExtColumnValue.SHOP_ID,shopId)
+				.get();
+			if(extColumnValue == null){
+				return null;
+			}
+			
+			if(StringUtil.isEmpty(extColumnValue.getConfigValue())){
+				return null;
+			}
+			
+			Map<String,Object> tmpMap = FastJsonUtils.getBean(extColumnValue.getConfigValue(), Map.class);
+			
+			if(clazz.equals(Map.class)){
+				return (T)tmpMap;
+			}
+			
+			List<Field> liField = BeanUtil.getAllField(clazz);
+			
+			for(Field field : liField){
+				
+				String name = field.getName();
+				
+				ColumnExtColumn columnExtColumn = AnnotationUtils.findAnnotation(field, ColumnExtColumn.class);
+				if(columnExtColumn != null){
+					name = columnExtColumn.name();
+				}
+				Object v = tmpMap.get(name);
+				if(v == null){
+					continue;
+				}
+				tmpMap.remove(name);
+				tmpMap.put(field.getName(), v);
+			}
+	
+			T result =  FastJsonUtils.getBean(FastJsonUtils.toJsonString(tmpMap), clazz);
+			tmpMap.clear();
+			return result;
+			
+		}catch (Exception e) {
+			return null;
+		}
+	}
+}

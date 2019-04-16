@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-lazy-init="false">
+	
+	<bean id="redisAspect" class="com.xy.utils.redis.aspect.RedisAspect">
+	</bean>
+	
+	<aop:config>
+		<aop:aspect ref="redisAspect" order="1">
+			<aop:around pointcut="execution( * *(..)) and @annotation(redis)" method="around"/>
+			<aop:after-throwing pointcut="execution( * *(..)) and @annotation(redis)" throwing="exception" method="afterThrowing"/>
+		</aop:aspect>
+	</aop:config>
+	
+	<aop:aspectj-autoproxy />
+	
+	
+</beans>
