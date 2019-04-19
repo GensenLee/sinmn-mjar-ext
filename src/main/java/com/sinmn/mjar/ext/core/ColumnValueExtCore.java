@@ -14,6 +14,7 @@ import com.sinmn.core.utils.util.StringUtil;
 import com.sinmn.mjar.ext.annotation.ColumnExt;
 import com.sinmn.mjar.ext.annotation.ColumnExtColumn;
 import com.sinmn.mjar.ext.model.ExtColumnValue;
+import com.sinmn.mjar.ext.model.ExtKeyValue;
 import com.sinmn.mjar.ext.repository.ExtColumnValueRepository;
 
 @Component
@@ -33,18 +34,80 @@ public class ColumnValueExtCore {
 		return getByShopId(code,shopId,clazz);
 	}
 	
-	@SuppressWarnings("unchecked")
+	public <T> T getByCompanyId(Long companyId,Class<T> clazz){
+		
+		String code = "";
+		
+		ColumnExt columnExt = AnnotationUtils.findAnnotation(clazz, ColumnExt.class);
+		if(columnExt != null){
+			code = columnExt.code();
+		}
+		return getByCompanyId(code,companyId,clazz);
+	}
+
+
+	public <T> T getByAppInstanceId(Long appInstanceId,Class<T> clazz){
+		
+		String code = "";
+		
+		ColumnExt columnExt = AnnotationUtils.findAnnotation(clazz, ColumnExt.class);
+		if(columnExt != null){
+			code = columnExt.code();
+		}
+		return getByAppInstanceId(code,appInstanceId,clazz);
+	}
+	
 	public <T> T getByShopId(String code,Long shopId,Class<T> clazz){
 		
-		try {
-			ExtColumnValue extColumnValue = extColumnValueRepository
+		ExtColumnValue extColumnValue = extColumnValueRepository
 				.where(ExtColumnValue.CODE,code)
 				.where(ExtColumnValue.SHOP_ID,shopId)
+				.where(ExtColumnValue.COMPANY_ID,0)
+				.where(ExtColumnValue.APP_INSTANCE_ID,0)
 				.get();
-			if(extColumnValue == null){
-				return null;
-			}
+		if(extColumnValue == null){
+			return null;
+		}
+		return get(extColumnValue,clazz);
 			
+		
+	}
+	
+	public <T> T getByCompanyId(String code,Long companyId,Class<T> clazz){
+		
+		ExtColumnValue extColumnValue = extColumnValueRepository
+				.where(ExtColumnValue.CODE,code)
+				.where(ExtColumnValue.COMPANY_ID,companyId)
+				.where(ExtColumnValue.SHOP_ID,0)
+				.where(ExtColumnValue.APP_INSTANCE_ID,0)
+				.get();
+		if(extColumnValue == null){
+			return null;
+		}
+		return get(extColumnValue,clazz);
+			
+		
+	}
+	
+	public <T> T getByAppInstanceId(String code,Long appInstanceId,Class<T> clazz){
+		
+		ExtColumnValue extColumnValue = extColumnValueRepository
+				.where(ExtColumnValue.CODE,code)
+				.where(ExtColumnValue.APP_INSTANCE_ID,appInstanceId)
+				.where(ExtColumnValue.COMPANY_ID,0)
+				.where(ExtColumnValue.SHOP_ID,0)
+				.get();
+		if(extColumnValue == null){
+			return null;
+		}
+		return get(extColumnValue,clazz);
+			
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T get(ExtColumnValue extColumnValue,Class<T> clazz){
+		try {
 			if(StringUtil.isEmpty(extColumnValue.getConfigValue())){
 				return null;
 			}
@@ -72,7 +135,7 @@ public class ColumnValueExtCore {
 				tmpMap.remove(name);
 				tmpMap.put(field.getName(), v);
 			}
-	
+
 			T result =  FastJsonUtils.getBean(FastJsonUtils.toJsonString(tmpMap), clazz);
 			tmpMap.clear();
 			return result;
@@ -80,5 +143,6 @@ public class ColumnValueExtCore {
 		}catch (Exception e) {
 			return null;
 		}
+		
 	}
 }

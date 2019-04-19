@@ -34,19 +34,24 @@ public class KeyValueExtCore {
 		return get(type,clazz);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T> T get(String type,Class<T> clazz){
 		
+		List<ExtKeyValue> liExtKeyValue = extKeyValueRepository
+			.where(ExtKeyValue.TYPE,type)
+			.where(ExtKeyValue.SHOP_ID,0)
+			.where(ExtKeyValue.COMPANY_ID,0)
+			.where(ExtKeyValue.APP_INSTANCE_ID,0)
+			.list();
+		
+		if(CollectionUtils.isEmpty(liExtKeyValue)){
+			return null;
+		}
+		return get(liExtKeyValue,clazz);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T get(List<ExtKeyValue> liExtKeyValue,Class<T> clazz){
 		try {
-			
-			List<ExtKeyValue> liExtKeyValue = extKeyValueRepository
-				.where(ExtKeyValue.TYPE,type)
-				.list();
-			
-			if(CollectionUtils.isEmpty(liExtKeyValue)){
-				return null;
-			}
-			
 			Map<String,Object> tmpMap = new HashMap<String,Object>();
 			
 			for(ExtKeyValue extKeyValue : liExtKeyValue){

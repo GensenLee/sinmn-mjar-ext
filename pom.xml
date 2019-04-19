@@ -3,7 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sinmn.mjar</groupId>
 	<artifactId>sinmn-mjar-ext</artifactId>
-	
+	<url>https://github.com/sinmn/sinmn-mjar-ext</url> 
+	 
 	<parent>
 		<groupId>com.sinmn</groupId>
 		<artifactId>sinmn-parent</artifactId>
