@@ -8,7 +8,7 @@
 			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
 	default-lazy-init="false">
 	
-	<bean id="redisAspect" class="com.xy.utils.redis.aspect.RedisAspect">
+	<bean id="redisAspect" class="com.sinmn.core.utils.redis.aspect.RedisAspect">
 	</bean>
 	
 	<aop:config>

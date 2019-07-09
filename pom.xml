@@ -42,6 +42,10 @@
 			<groupId>com.sinmn.core</groupId>
 			<artifactId>sinmn-core-model</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 </project>
