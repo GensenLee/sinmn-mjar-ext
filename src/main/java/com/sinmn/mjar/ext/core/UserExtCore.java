@@ -6,6 +6,7 @@ import com.sinmn.core.utils.util.FastJsonUtils;
 import com.sinmn.core.utils.util.StringUtil;
 import com.sinmn.mjar.ext.redis.ExtRedisDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,7 +18,9 @@ public class UserExtCore {
 
     private static String KEY_TEMPLATE_USER = "SINMN.USER.AUTH.SESSION_KEY:%s";
 
-    private int expireTime = 60*60*2;
+
+    @Value("${sinmn.ext.user.expire-time:120}")
+    private int expireTime;
 
     @Autowired
     private ExtRedisDao extRedisDao;
@@ -29,7 +32,7 @@ public class UserExtCore {
     public void holdSeesion(String sessionKey, String userInfo){
         String key = String.format(KEY_TEMPLATE_USER, sessionKey);
 
-        extRedisDao.set(key, userInfo, this.expireTime);
+        extRedisDao.set(key, userInfo, this.expireTime * 60);
     }
 
 
@@ -42,7 +45,7 @@ public class UserExtCore {
     public <T> T getSession(String sessionKey, Class<T> clazz){
         String key = String.format(KEY_TEMPLATE_USER, sessionKey);
 
-        String userinfo = extRedisDao.get(key, this.expireTime);
+        String userinfo = extRedisDao.get(key, this.expireTime * 60);
         if (StringUtil.isEmpty(userinfo)) {
             throw new CommonRuntimeException(ApiResultCode.SESSION_KEY_ERROR);
         }
